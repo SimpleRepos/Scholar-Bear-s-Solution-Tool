@@ -48,53 +48,114 @@ namespace Scholar_Bear_s_Solution_Tool {
                 // ~~@ there should be other patterns here too, such as 'a . ((b . c) . d)'
             };
 
-            public Pattern pattern;
+            public Pattern pattern; // ~~@ Patterns should have a class
             public Operator[] operators;
             public int[] values;
             public int score;
-            
+            public int[] stepResults;
+
+            public Solution(Pattern pat, Operator[] ops, int[] vals) {
+                pattern = pat;
+                operators = ops;
+                values = vals;
+                stepResults = new int[3];
+                score = 0;
+                score = execute();
+            }
+
+            private int executeSequential() {
+                stepResults[0] = operators[0].Invoke(values[0], values[1]);
+                if (stepResults[0] == -1) { pattern = Pattern.FAIL; return -1; }
+                score += stepResults[0];
+
+                stepResults[1] = operators[1].Invoke(stepResults[0], values[2]);
+                if (stepResults[1] == -1) { pattern = Pattern.FAIL; return -1; }
+                score += stepResults[1];
+
+                stepResults[2] = operators[2].Invoke(stepResults[1], values[3]);
+                if (stepResults[2] == -1) { pattern = Pattern.FAIL; return -1; }
+                score += stepResults[2];
+
+                if (stepResults[2] != 10) { pattern = Pattern.FAIL; return -1; }
+                return score;
+            }
+
+            private int executePaired() {
+                stepResults[0] = operators[0].Invoke(values[0], values[1]);
+                if (stepResults[0] == -1) { pattern = Pattern.FAIL; return -1; }
+                score += stepResults[0];
+
+                stepResults[1] = operators[2].Invoke(values[2], values[3]);
+                if (stepResults[1] == -1) { pattern = Pattern.FAIL; return -1; }
+                score += stepResults[1];
+
+                stepResults[2] = operators[1].Invoke(stepResults[0], stepResults[1]);
+                if (stepResults[2] == -1) { pattern = Pattern.FAIL; return -1; }
+                score += stepResults[2];
+
+                if (stepResults[2] != 10) { pattern = Pattern.FAIL; return -1; }
+                return score;
+            }
+
+            private int executeCentric() {
+                stepResults[0] = operators[1].Invoke(values[1], values[2]);
+                if (stepResults[0] == -1) { pattern = Pattern.FAIL; return -1; }
+                score += stepResults[0];
+
+                stepResults[1] = operators[0].Invoke(values[0], stepResults[1]);
+                if (stepResults[1] == -1) { pattern = Pattern.FAIL; return -1; }
+                score += stepResults[1];
+
+                stepResults[2] = operators[2].Invoke(stepResults[1], values[3]);
+                if (stepResults[2] == -1) { pattern = Pattern.FAIL; return -1; }
+                score += stepResults[2];
+
+                if (stepResults[2] != 10) { pattern = Pattern.FAIL; return -1; }
+                return score;
+            }
+
+            private int execute() {
+                switch(pattern) {
+                    case Pattern.SEQUENTIAL: return executeSequential();
+                    case Pattern.PAIRED: return executePaired();
+                    case Pattern.CENTRIC: return executeCentric();
+                }
+                pattern = Pattern.FAIL;
+                return -1;
+            }
+
             // These functions generate explanation strings for the user.
             // Call .explain() to get the right one.
 
+            private string opToString(int a, Operator op, int b, int result) {
+                return a + " " + op.Token + " " + b + " = " + result + "\n";
+            }
+
+
             private string explainSequential() {
-                int a = operators[0].Invoke(values[0], values[1]);
-                int b = operators[1].Invoke(a, values[2]);
-                int c = operators[2].Invoke(b, values[3]);
-
                 string explanation = "";
-                explanation += values[0] + " " + operators[0].Token + " " + values[1] + " = " + a + "\n";
-                explanation += a + " " + operators[1].Token + " " + values[2] + " = " + b + "\n";
-                explanation += b + " " + operators[2].Token + " " + values[3] + " = " + c + "\n";
+                explanation += opToString(values[0], operators[0], values[1], stepResults[0]);
+                explanation += opToString(stepResults[0], operators[1], values[2], stepResults[1]);
+                explanation += opToString(stepResults[1], operators[2], values[3], stepResults[2]);
                 explanation += "Score = " + score + "\n\n";
-
                 return explanation;
             }
 
             private string explainPaired() {
-                int a = operators[0].Invoke(values[0], values[1]);
-                int b = operators[2].Invoke(values[2], values[3]);
-                int c = operators[1].Invoke(a, b);
-
                 string explanation = "";
-                explanation += values[0] + " " + operators[0].Token + " " + values[1] + " = " + a + "\n";
-                explanation += values[2] + " " + operators[2].Token + " " + values[3] + " = " + b + "\n";
-                explanation += a + " " + operators[1].Token + " " + b + " = " + c + "\n";
+                explanation += opToString(values[0], operators[0], values[1], stepResults[0]);
+                explanation += opToString(values[2], operators[2], values[3], stepResults[1]);
+                explanation += opToString(stepResults[0], operators[2], stepResults[1], stepResults[2]);
                 explanation += "Score = " + score + "\n\n";
-
                 return explanation;
             }
 
             private string explainCentric() {
-                int a = operators[1].Invoke(values[1], values[2]);
-                int b = operators[0].Invoke(values[0], a);
-                int c = operators[2].Invoke(b, values[3]);
-
                 string explanation = "";
-                explanation += values[1] + " " + operators[1].Token + " " + values[2] + " = " + a + "\n";
-                explanation += values[0] + " " + operators[0].Token + " " + a + " = " + b + "\n";
-                explanation += b + " " + operators[2].Token + " " + values[3] + " = " + c + "\n";
+                explanation += opToString(values[1], operators[1], values[2], stepResults[0]);
+                explanation += opToString(values[0], operators[0], stepResults[0], stepResults[1]);
+                explanation += opToString(stepResults[1], operators[2], values[3], stepResults[2]);
                 explanation += "Score = " + score + "\n\n";
-
                 return explanation;
             }
 
@@ -106,96 +167,22 @@ namespace Scholar_Bear_s_Solution_Tool {
                 }
                 return "No solution found!";
             }
-
         }
-
-        // These functions execute the indicated pattern on the values and operators
-        // provided and return the resulting solution object
-
-        private Solution doSequential(Operator[] ops, int[] set) {
-            Solution sol;
-            sol.pattern = Solution.Pattern.SEQUENTIAL;
-            sol.operators = ops;
-            sol.values = set;
-            sol.score = 0;
-
-            int a = ops[0].Invoke(set[0], set[1]);
-            if (a == -1) { sol.pattern = Solution.Pattern.FAIL; return sol; }
-            sol.score += a;
-
-            int b = ops[1].Invoke(a, set[2]);
-            if (b == -1) { sol.pattern = Solution.Pattern.FAIL; return sol; }
-            sol.score += b;
-
-            int c = ops[2].Invoke(b, set[3]);
-            if (c == -1) { sol.pattern = Solution.Pattern.FAIL; return sol; }
-            sol.score += c;
-
-            if (c != 10) { sol.pattern = Solution.Pattern.FAIL; }
-            return sol;
-        }
-
-        private Solution doPaired(Operator[] ops, int[] set) {
-            Solution sol;
-            sol.pattern = Solution.Pattern.PAIRED;
-            sol.operators = ops;
-            sol.values = set;
-            sol.score = 0;
-
-            int a = ops[0].Invoke(set[0], set[1]);
-            if (a == -1) { sol.pattern = Solution.Pattern.FAIL; return sol; }
-            sol.score += a;
-
-            int b = ops[2].Invoke(set[2], set[3]);
-            if (b == -1) { sol.pattern = Solution.Pattern.FAIL; return sol; }
-            sol.score += b;
-
-            int c = ops[1].Invoke(a, b);
-            if (c == -1) { sol.pattern = Solution.Pattern.FAIL; return sol; }
-            sol.score += c;
-
-            if (c != 10) { sol.pattern = Solution.Pattern.FAIL; }
-            return sol;
-        }
-
-        private Solution doCentric(Operator[] ops, int[] set) {
-            Solution sol;
-            sol.pattern = Solution.Pattern.CENTRIC;
-            sol.operators = ops;
-            sol.values = set;
-            sol.score = 0;
-
-            int a = ops[1].Invoke(set[1], set[2]);
-            if (a == -1) { sol.pattern = Solution.Pattern.FAIL; return sol; }
-            sol.score += a;
-
-            int b = ops[0].Invoke(set[0], a);
-            if (b == -1) { sol.pattern = Solution.Pattern.FAIL; return sol; }
-            sol.score += b;
-
-            int c = ops[2].Invoke(b, set[3]);
-            if (c == -1) { sol.pattern = Solution.Pattern.FAIL; return sol; }
-            sol.score += c;
-
-            if (c != 10) { sol.pattern = Solution.Pattern.FAIL; }
-            return sol;
-        }
-
 
         // Generate a list of all non-failed solutions
         List<Solution> generateSolutions(int[] inputSet) {
-            var combos = generateCombinations(inputSet);
+            List<int[]> combos = generateCombinations(inputSet);
+            List<Solution.Pattern> patterns = new List<Solution.Pattern>(Enum.GetValues(typeof(Solution.Pattern)).Cast<Solution.Pattern>());
+            patterns.Remove(Solution.Pattern.FAIL);
 
             List<Solution> solutions = new List<Solution>();
-            Solution sol;
             foreach(var set in combos) {
+                Solution sol;
                 foreach(var opSet in Operators.combinations) {
-                    sol = doSequential(opSet, set);
-                    if (sol.pattern != Solution.Pattern.FAIL) { solutions.Add(sol); }
-                    sol = doPaired(opSet, set);
-                    if (sol.pattern != Solution.Pattern.FAIL) { solutions.Add(sol); }
-                    sol = doCentric(opSet, set);
-                    if (sol.pattern != Solution.Pattern.FAIL) { solutions.Add(sol); }
+                    foreach(Solution.Pattern pattern in patterns) {
+                        sol = new Solution(pattern, opSet, set);
+                        if (sol.pattern != Solution.Pattern.FAIL) { solutions.Add(sol); }
+                    }
                 }
             }
 
