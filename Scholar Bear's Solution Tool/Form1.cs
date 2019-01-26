@@ -17,6 +17,11 @@ namespace Scholar_Bear_s_Solution_Tool {
             solver = new Solver();
         }
 
+        /* getSanitizedInput()
+         * 
+         * This will gather the values from the text boxes, ensure that they're sane, and return them as an int[].
+         * On failure it will return null.
+         */
         private int[] getSanitizedInput() {
             string valueString = maskedTextBox1.Text + maskedTextBox2.Text + maskedTextBox3.Text + maskedTextBox4.Text;
             if (valueString.Length != 4) {
@@ -30,7 +35,12 @@ namespace Scholar_Bear_s_Solution_Tool {
 
             return values.ToArray();
         }
-
+        
+        /* SolveButton_Click()
+         * 
+         * Fetches the input, runs the calculations, outputs the results.
+         * 
+         */
         private void SolveButton_Click(object sender, EventArgs e) {
             var values = getSanitizedInput();
 

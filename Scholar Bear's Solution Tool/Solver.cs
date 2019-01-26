@@ -6,47 +6,55 @@ using System.Threading.Tasks;
 
 namespace Scholar_Bear_s_Solution_Tool {
     class Solver {
-
+        // Generates a list of all possible combinations of the input values
         private List<int[]> generateCombinations(int[] inputSet) {
-            int a = inputSet[0];
-            int b = inputSet[1];
-            int c = inputSet[2];
-            int d = inputSet[3];
-
             return new List<int[]>() {
-                new int[4] { a, b, c, d },
-                new int[4] { a, b, d, c },
-                new int[4] { a, c, b, d },
-                new int[4] { a, c, d, b },
-                new int[4] { a, d, b, c },
-                new int[4] { a, d, c, b },
-                new int[4] { b, a, c, d },
-                new int[4] { b, a, d, c },
-                new int[4] { b, c, a, d },
-                new int[4] { b, c, d, a },
-                new int[4] { b, d, a, c },
-                new int[4] { b, d, c, a },
-                new int[4] { c, a, b, d },
-                new int[4] { c, a, d, b },
-                new int[4] { c, b, a, d },
-                new int[4] { c, b, d, a },
-                new int[4] { c, d, a, b },
-                new int[4] { c, d, b, a },
-                new int[4] { d, a, b, c },
-                new int[4] { d, a, c, b },
-                new int[4] { d, b, a, c },
-                new int[4] { d, b, c, a },
-                new int[4] { d, c, a, b },
-                new int[4] { d, c, b, a }
+                new int[4] { inputSet[0], inputSet[1], inputSet[2], inputSet[3] },
+                new int[4] { inputSet[0], inputSet[1], inputSet[3], inputSet[2] },
+                new int[4] { inputSet[0], inputSet[2], inputSet[1], inputSet[3] },
+                new int[4] { inputSet[0], inputSet[2], inputSet[3], inputSet[1] },
+                new int[4] { inputSet[0], inputSet[3], inputSet[1], inputSet[2] },
+                new int[4] { inputSet[0], inputSet[3], inputSet[2], inputSet[1] },
+                new int[4] { inputSet[1], inputSet[0], inputSet[2], inputSet[3] },
+                new int[4] { inputSet[1], inputSet[0], inputSet[3], inputSet[2] },
+                new int[4] { inputSet[1], inputSet[2], inputSet[0], inputSet[3] },
+                new int[4] { inputSet[1], inputSet[2], inputSet[3], inputSet[0] },
+                new int[4] { inputSet[1], inputSet[3], inputSet[0], inputSet[2] },
+                new int[4] { inputSet[1], inputSet[3], inputSet[2], inputSet[0] },
+                new int[4] { inputSet[2], inputSet[0], inputSet[1], inputSet[3] },
+                new int[4] { inputSet[2], inputSet[0], inputSet[3], inputSet[1] },
+                new int[4] { inputSet[2], inputSet[1], inputSet[0], inputSet[3] },
+                new int[4] { inputSet[2], inputSet[1], inputSet[3], inputSet[0] },
+                new int[4] { inputSet[2], inputSet[3], inputSet[0], inputSet[1] },
+                new int[4] { inputSet[2], inputSet[3], inputSet[1], inputSet[0] },
+                new int[4] { inputSet[3], inputSet[0], inputSet[1], inputSet[2] },
+                new int[4] { inputSet[3], inputSet[0], inputSet[2], inputSet[1] },
+                new int[4] { inputSet[3], inputSet[1], inputSet[0], inputSet[2] },
+                new int[4] { inputSet[3], inputSet[1], inputSet[2], inputSet[0] },
+                new int[4] { inputSet[3], inputSet[2], inputSet[0], inputSet[1] },
+                new int[4] { inputSet[3], inputSet[2], inputSet[1], inputSet[0] }
             };
         }
 
-        public struct Solution {
-            public enum Pattern { FAIL, SEQUENTIAL, PAIRED, CENTRIC };
+        // Represents a potential solution to a set of values and provides a user-readable
+        // explanation for the solution.
+        public struct Solution { //~~@ should this be a struct? look at usage
+            //The pattern type indicates the order of operations for the solution, or indicates failure.
+            public enum Pattern {
+                FAIL,       // Not a valid solution
+                SEQUENTIAL, // ((a . b) . c) . d
+                PAIRED,     // (a . b) . (c . d)
+                CENTRIC     // (a . (b . c)) . d
+                // ~~@ there should be other patterns here too, such as 'a . ((b . c) . d)'
+            };
+
             public Pattern pattern;
             public Operator[] operators;
             public int[] values;
             public int score;
+            
+            // These functions generate explanation strings for the user.
+            // Call .explain() to get the right one.
 
             private string explainSequential() {
                 int a = operators[0].Invoke(values[0], values[1]);
@@ -100,6 +108,9 @@ namespace Scholar_Bear_s_Solution_Tool {
             }
 
         }
+
+        // These functions execute the indicated pattern on the values and operators
+        // provided and return the resulting solution object
 
         private Solution doSequential(Operator[] ops, int[] set) {
             Solution sol;
@@ -170,13 +181,15 @@ namespace Scholar_Bear_s_Solution_Tool {
             return sol;
         }
 
+
+        // Generate a list of all non-failed solutions
         List<Solution> generateSolutions(int[] inputSet) {
             var combos = generateCombinations(inputSet);
 
             List<Solution> solutions = new List<Solution>();
             Solution sol;
             foreach(var set in combos) {
-                foreach(var opSet in Operators.operatorSets) {
+                foreach(var opSet in Operators.combinations) {
                     sol = doSequential(opSet, set);
                     if (sol.pattern != Solution.Pattern.FAIL) { solutions.Add(sol); }
                     sol = doPaired(opSet, set);
@@ -189,6 +202,7 @@ namespace Scholar_Bear_s_Solution_Tool {
             return solutions;
         }
 
+        // Return the solution with the highest score.
         public Solution findBestSolution(int[] inputSet) {
             List<Solution> candidates = generateSolutions(inputSet);
             Solution winner = new Solution { pattern = Solution.Pattern.FAIL, score = -1 };
