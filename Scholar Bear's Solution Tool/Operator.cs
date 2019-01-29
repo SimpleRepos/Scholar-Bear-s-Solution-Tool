@@ -2,9 +2,10 @@
 using System.Collections.Generic;
 
 namespace Scholar_Bear_s_Solution_Tool {
+    //A class representing an operator, can be invoked and can
+    //provide a human-readable explanation of an invocation.
+    //This class also contains the collection of available operators.
     class Operator {
-        public enum Name { ADD, SUB, MUL, DIV };
-
         public Operator(char token, Func<int, int, int> invoke) {
             Token = token;
             Invoke = invoke;
@@ -14,11 +15,15 @@ namespace Scholar_Bear_s_Solution_Tool {
 
         public readonly Func<int, int, int> Invoke;
 
-        public static readonly Dictionary<Name, Operator> operators;
-
         public static string Explain(int a, Operator op, int b, int sult) {
             return a + " " + op.Token + " " + b + " = " + sult + "\n";
         }
+
+        /// Operator.operators is a dictionary of the available operators.
+
+        public enum Name { ADD, SUB, MUL, DIV };
+
+        public static readonly Dictionary<Name, Operator> operators;
 
         static Operator() {
             operators = new Dictionary<Name, Operator>();
@@ -60,18 +65,4 @@ namespace Scholar_Bear_s_Solution_Tool {
         }
     }
 
-    /*
-    private static List<Operator[]> generateCombinations() {
-        List<Operator[]> sets = new List<Operator[]>();
-        foreach (var a in Operator.operators) {
-            foreach (var b in Operator.operators) {
-                foreach (var c in Operator.operators) {
-                    sets.Add(new Operator[] { a.Value, b.Value, c.Value });
-                }
-            }
-        }
-
-        return sets;
-    }
-    */
 }

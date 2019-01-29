@@ -5,29 +5,26 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace Scholar_Bear_s_Solution_Tool {
+    //A class representing the order of operations to use in a solution.
+    //Contains a dictionary of possible patterns.
     class Pattern {
-        Pattern(Func<Operator[], int[], Result> invoke, Func<Operator[], int[], Result, string> explain) {
+        Pattern(Func<OpSet, ValueSet, int[]> invoke, Func<OpSet, ValueSet, Result, string> explain) {
             Invoke = invoke;
             Explain = explain;
         }
 
-        public enum Name { SEQUENTIAL, PAIRED, CENTRIC, TAILCENTRIC, REVERSED }
+        public readonly Func<OpSet, ValueSet, int[]> Invoke;
 
-        public readonly Func<Operator[], int[], Result> Invoke;
+        public readonly Func<OpSet, ValueSet, Result, string> Explain;
 
-        public readonly Func<Operator[], int[], Result, string> Explain;
+        //Pattern.patterns is a dictionary of the available patterns
 
-        public class Result {
-            public int[] steps = new int[3];
-
-            public static readonly Result BAD = new Result() { steps = null };
-
-            public int score {
-                get {
-                    if (steps == null) { return -1; }
-                    return steps[0] + steps[1] + steps[2];
-                }
-            }
+        public enum Name {
+            SEQUENTIAL,  //((a.b).c).d
+            PAIRED,      //(a.b).(c.d)
+            CENTRIC,     //(a.(b.c)).d
+            TAILCENTRIC, //a.((b.c).d)
+            REVERSED     //a.(b.(c.d))
         }
 
         public static readonly Dictionary<Name, Pattern> patterns;
@@ -37,18 +34,18 @@ namespace Scholar_Bear_s_Solution_Tool {
 
             string BadResultExplanation = "Failed!";
 
-            Result sequentialInvoke(Operator[] ops, int[] values) {
-                Result sult = new Result();
-                sult.steps[0] = ops[0].Invoke(values[0], values[1]);
-                if(sult.steps[0] == -1) { return Result.BAD; }
-                sult.steps[1] = ops[1].Invoke(sult.steps[0], values[2]);
-                if(sult.steps[1] == -1) { return Result.BAD; }
-                sult.steps[2] = ops[2].Invoke(sult.steps[1], values[3]);
-                if(sult.steps[2] != 10) { return Result.BAD; }
-                return sult;
+            int[] sequentialInvoke(OpSet ops, ValueSet values) {
+                int[] steps = new int[3];
+                steps[0] = ops[0].Invoke(values[0], values[1]);
+                if(steps[0] == -1) { return null; }
+                steps[1] = ops[1].Invoke(steps[0], values[2]);
+                if(steps[1] == -1) { return null; }
+                steps[2] = ops[2].Invoke(steps[1], values[3]);
+                if(steps[2] != 10) { return null; }
+                return steps;
             }
 
-            string sequentialExplain(Operator[] ops, int[] values, Result sult) {
+            string sequentialExplain(OpSet ops, ValueSet values, Result sult) {
                 if(sult.steps == null) { return BadResultExplanation; }
 
                 string exp = "";
@@ -61,18 +58,18 @@ namespace Scholar_Bear_s_Solution_Tool {
 
             patterns.Add(Name.SEQUENTIAL, new Pattern(sequentialInvoke, sequentialExplain));
 
-            Result pairedInvoke(Operator[] ops, int[] values) {
-                Result sult = new Result();
-                sult.steps[0] = ops[0].Invoke(values[0], values[1]);
-                if(sult.steps[0] == -1) { return Result.BAD; }
-                sult.steps[1] = ops[2].Invoke(values[2], values[3]);
-                if(sult.steps[1] == -1) { return Result.BAD; }
-                sult.steps[2] = ops[1].Invoke(sult.steps[0], sult.steps[1]);
-                if(sult.steps[2] != 10) { return Result.BAD; }
-                return sult;
+            int[] pairedInvoke(OpSet ops, ValueSet values) {
+                int[] steps = new int[3];
+                steps[0] = ops[0].Invoke(values[0], values[1]);
+                if(steps[0] == -1) { return null; }
+                steps[1] = ops[2].Invoke(values[2], values[3]);
+                if(steps[1] == -1) { return null; }
+                steps[2] = ops[1].Invoke(steps[0], steps[1]);
+                if(steps[2] != 10) { return null; }
+                return steps;
             }
 
-            string pairedExplain(Operator[] ops, int[] values, Result sult) {
+            string pairedExplain(OpSet ops, ValueSet values, Result sult) {
                 if(sult.steps == null) { return BadResultExplanation; }
 
                 string exp = "";
@@ -85,18 +82,18 @@ namespace Scholar_Bear_s_Solution_Tool {
 
             patterns.Add(Name.PAIRED, new Pattern(pairedInvoke, pairedExplain));
 
-            Result centricInvoke(Operator[] ops, int[] values) {
-                Result sult = new Result();
-                sult.steps[0] = ops[1].Invoke(values[1], values[2]);
-                if (sult.steps[0] == -1) { return Result.BAD; }
-                sult.steps[1] = ops[0].Invoke(values[0], sult.steps[0]);
-                if (sult.steps[1] == -1) { return Result.BAD; }
-                sult.steps[2] = ops[2].Invoke(sult.steps[1], values[3]);
-                if (sult.steps[2] != 10) { return Result.BAD; }
-                return sult;
+            int[] centricInvoke(OpSet ops, ValueSet values) {
+                int[] steps = new int[3];
+                steps[0] = ops[1].Invoke(values[1], values[2]);
+                if (steps[0] == -1) { return null; }
+                steps[1] = ops[0].Invoke(values[0], steps[0]);
+                if (steps[1] == -1) { return null; }
+                steps[2] = ops[2].Invoke(steps[1], values[3]);
+                if (steps[2] != 10) { return null; }
+                return steps;
             }
 
-            string centricExplain(Operator[] ops, int[] values, Result sult) {
+            string centricExplain(OpSet ops, ValueSet values, Result sult) {
                 if(sult.steps == null) { return BadResultExplanation; }
 
                 string exp = "";
@@ -109,8 +106,61 @@ namespace Scholar_Bear_s_Solution_Tool {
 
             patterns.Add(Name.CENTRIC, new Pattern(centricInvoke, centricExplain));
 
-            //~~_ TAILCENTRIC
-            //~~_ REVERSED
+            int[] tailCentricInvoke(OpSet ops, ValueSet values) {
+                int[] steps = new int[3];
+                steps[0] = ops[1].Invoke(values[1], values[2]);
+                if (steps[0] == -1) { return null; }
+                steps[1] = ops[2].Invoke(steps[0], values[3]);
+                if (steps[1] == -1) { return null; }
+                steps[2] = ops[0].Invoke(values[0], steps[1]);
+                if (steps[2] != 10) { return null; }
+                return steps;
+            }
+
+            string tailCentricExplain(OpSet ops, ValueSet values, Result sult) {
+                if(sult.steps == null) { return BadResultExplanation; }
+
+                string exp = "";
+                exp += Operator.Explain(values[1], ops[1], values[2], sult.steps[0]);
+                exp += Operator.Explain(sult.steps[0], ops[2], values[3], sult.steps[1]);
+                exp += Operator.Explain(values[0], ops[0], sult.steps[1], sult.steps[2]);
+                exp += "Score: " + sult.score + "\n";
+                return exp;
+            }
+
+            patterns.Add(Name.TAILCENTRIC, new Pattern(tailCentricInvoke, tailCentricExplain));
+
+            int[] reversedInvoke(OpSet ops, ValueSet values) {
+                int[] steps = new int[3];
+                steps[0] = ops[2].Invoke(values[2], values[3]);
+                if (steps[0] == -1) { return null; }
+                steps[1] = ops[1].Invoke(values[1], steps[0]);
+                if (steps[1] == -1) { return null; }
+                steps[2] = ops[0].Invoke(values[0], steps[1]);
+                if (steps[2] != 10) { return null; }
+                return steps;
+            }
+
+            string reversedExplain(OpSet ops, ValueSet values, Result sult) {
+                if(sult.steps == null) { return BadResultExplanation; }
+
+                string exp = "";
+                exp += Operator.Explain(values[2], ops[2], values[3], sult.steps[0]);
+                exp += Operator.Explain(values[1], ops[1], sult.steps[0], sult.steps[1]);
+                exp += Operator.Explain(values[0], ops[0], sult.steps[1], sult.steps[2]);
+                exp += "Score: " + sult.score + "\n";
+                return exp;
+            }
+
+            patterns.Add(Name.REVERSED, new Pattern(reversedInvoke, reversedExplain));
         }
+
     }
 }
+
+
+
+
+
+
+

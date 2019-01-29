@@ -44,12 +44,18 @@ namespace Scholar_Bear_s_Solution_Tool {
         private void SolveButton_Click(object sender, EventArgs e) {
             var values = getSanitizedInput();
 
-            string output = "Enter values and click \"Solve!\"\n\n<Invalid input!>";
-            if (values != null) {
+            string output = "Enter values above,\nthen click \"Solve!\"\n\n<Invalid input!>";
+            if(values != null) {
                 var solution = solver.findBestSolution(values);
-                output = solution.explain();
+
+                if(solution != null) { output = solution.Explain(); }
+                else { output = "No solution found!"; }
             }
 
+            maskedTextBox1.Text = "";
+            maskedTextBox2.Text = "";
+            maskedTextBox3.Text = "";
+            maskedTextBox4.Text = "";
             label1.Text = output;
         }
     }

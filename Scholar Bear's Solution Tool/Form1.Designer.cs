@@ -38,46 +38,46 @@
             // 
             // maskedTextBox4
             // 
-            this.maskedTextBox4.Location = new System.Drawing.Point(127, 12);
+            this.maskedTextBox4.Location = new System.Drawing.Point(120, 12);
             this.maskedTextBox4.Mask = "0";
             this.maskedTextBox4.Name = "maskedTextBox4";
-            this.maskedTextBox4.PromptChar = '.';
-            this.maskedTextBox4.Size = new System.Drawing.Size(22, 20);
+            this.maskedTextBox4.Size = new System.Drawing.Size(30, 20);
             this.maskedTextBox4.TabIndex = 17;
+            this.maskedTextBox4.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
             // 
             // maskedTextBox3
             // 
-            this.maskedTextBox3.Location = new System.Drawing.Point(99, 12);
+            this.maskedTextBox3.Location = new System.Drawing.Point(84, 12);
             this.maskedTextBox3.Mask = "0";
             this.maskedTextBox3.Name = "maskedTextBox3";
-            this.maskedTextBox3.PromptChar = '.';
-            this.maskedTextBox3.Size = new System.Drawing.Size(22, 20);
+            this.maskedTextBox3.Size = new System.Drawing.Size(30, 20);
             this.maskedTextBox3.TabIndex = 16;
+            this.maskedTextBox3.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
             // 
             // maskedTextBox2
             // 
-            this.maskedTextBox2.Location = new System.Drawing.Point(71, 12);
+            this.maskedTextBox2.Location = new System.Drawing.Point(48, 12);
             this.maskedTextBox2.Mask = "0";
             this.maskedTextBox2.Name = "maskedTextBox2";
-            this.maskedTextBox2.PromptChar = '.';
-            this.maskedTextBox2.Size = new System.Drawing.Size(22, 20);
+            this.maskedTextBox2.Size = new System.Drawing.Size(30, 20);
             this.maskedTextBox2.TabIndex = 15;
+            this.maskedTextBox2.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
             // 
             // maskedTextBox1
             // 
-            this.maskedTextBox1.Location = new System.Drawing.Point(43, 12);
+            this.maskedTextBox1.Location = new System.Drawing.Point(12, 12);
             this.maskedTextBox1.Mask = "0";
             this.maskedTextBox1.Name = "maskedTextBox1";
-            this.maskedTextBox1.PromptChar = '.';
-            this.maskedTextBox1.Size = new System.Drawing.Size(22, 20);
+            this.maskedTextBox1.Size = new System.Drawing.Size(30, 20);
             this.maskedTextBox1.TabIndex = 14;
+            this.maskedTextBox1.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
             // 
             // SolveButton
             // 
             this.SolveButton.FlatStyle = System.Windows.Forms.FlatStyle.System;
-            this.SolveButton.Location = new System.Drawing.Point(180, 13);
+            this.SolveButton.Location = new System.Drawing.Point(156, 12);
             this.SolveButton.Name = "SolveButton";
-            this.SolveButton.Size = new System.Drawing.Size(64, 23);
+            this.SolveButton.Size = new System.Drawing.Size(57, 23);
             this.SolveButton.TabIndex = 13;
             this.SolveButton.Text = "Solve!";
             this.SolveButton.UseVisualStyleBackColor = true;
@@ -86,9 +86,9 @@
             // groupBox1
             // 
             this.groupBox1.Controls.Add(this.label1);
-            this.groupBox1.Location = new System.Drawing.Point(12, 42);
+            this.groupBox1.Location = new System.Drawing.Point(12, 38);
             this.groupBox1.Name = "groupBox1";
-            this.groupBox1.Size = new System.Drawing.Size(168, 78);
+            this.groupBox1.Size = new System.Drawing.Size(138, 82);
             this.groupBox1.TabIndex = 18;
             this.groupBox1.TabStop = false;
             // 
@@ -97,14 +97,14 @@
             this.label1.AutoSize = true;
             this.label1.Location = new System.Drawing.Point(6, 16);
             this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(155, 13);
+            this.label1.Size = new System.Drawing.Size(102, 26);
             this.label1.TabIndex = 10;
-            this.label1.Text = "Enter values and click \"Solve!\"";
+            this.label1.Text = "Enter values above,\r\nthen click \"Solve!\"";
             // 
             // pictureBox1
             // 
             this.pictureBox1.Image = ((System.Drawing.Image)(resources.GetObject("pictureBox1.Image")));
-            this.pictureBox1.Location = new System.Drawing.Point(186, 60);
+            this.pictureBox1.Location = new System.Drawing.Point(156, 60);
             this.pictureBox1.Name = "pictureBox1";
             this.pictureBox1.Size = new System.Drawing.Size(57, 60);
             this.pictureBox1.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage;
@@ -116,7 +116,7 @@
             this.AcceptButton = this.SolveButton;
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(256, 132);
+            this.ClientSize = new System.Drawing.Size(224, 132);
             this.Controls.Add(this.maskedTextBox4);
             this.Controls.Add(this.maskedTextBox3);
             this.Controls.Add(this.maskedTextBox2);
